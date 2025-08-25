@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension point="org.eclipse.ui.bindings">
+      <key
+            commandId="com.tlcsdm.eclipse.autofiller.command"
+            contextId="org.eclipse.jdt.ui.javaEditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+O">
+      </key>
+   </extension>
+   <extension point="org.eclipse.ui.commands">
+      <command id="com.tlcsdm.eclipse.autofiller.command"
+               name="Generate Builder Pattern..."
+               description="Generate Builder Pattern code">
+      </command>
+   </extension>
+   
+   <extension point="org.eclipse.ui.handlers">
+   <handler
+			class="com.tlcsdm.eclipse.autofiller.handler.FillArgumentsHandler"
+			commandId="com.tlcsdm.eclipse.autofiller.command">
+   </handler>
+   </extension>
+   <extension
+         id="com.tlcsdm.eclipse.autofiller.proposal"
+         name="Auto Filling Java Call Arguments"
+         point="org.eclipse.jdt.ui.javaCompletionProposalComputer">
+      <javaCompletionProposalComputer
+            activate="false"
+            categoryId="org.eclipse.jdt.ui.defaultProposalCategory"
+            class="com.tlcsdm.eclipse.autofiller.handler.FillArgumentsCompletionProposalComputer"
+            needsSortingAfterFiltering="false"
+            requiresUIThread="true">
+      </javaCompletionProposalComputer>
+   </extension>
+
+</plugin>
