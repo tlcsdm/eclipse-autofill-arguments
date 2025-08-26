@@ -24,7 +24,6 @@ public class FillArgumentsHandler extends AbstractHandler {
 		}
 
 		ITextEditor textEditor = (ITextEditor) editor;
-
 		IEditorInput input = textEditor.getEditorInput();
 		ICompilationUnit icu = JavaUI.getWorkingCopyManager().getWorkingCopy(input);
 		if (icu == null) {
@@ -35,7 +34,6 @@ public class FillArgumentsHandler extends AbstractHandler {
 		ITextSelection selection = (ITextSelection) textEditor.getSelectionProvider().getSelection();
 		int offset = selection.getOffset();
 
-		// Call ArgumentFiller
 		ArgumentFiller filler = new ArgumentFiller(doc, offset, icu);
 		filler.fillArguments();
 

@@ -7,12 +7,15 @@ import java.util.List;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 
@@ -40,8 +43,6 @@ public class ArgumentFiller {
 
 	/**
 	 * Preview generated parameters without modifying the document
-	 * 
-	 * @return The parameter string, or null if the method call cannot be found
 	 */
 	public String previewArguments() {
 		try {
@@ -55,45 +56,63 @@ public class ArgumentFiller {
 
 			MethodInvocationFinder finder = new MethodInvocationFinder(offset);
 			cu.accept(finder);
-			MethodInvocation invocation = finder.getMethodInvocation();
 
-			if (invocation == null) {
+			ASTNode node = finder.getTargetNode();
+			if (node == null) {
 				return null;
 			}
 
-			IMethodBinding binding = invocation.resolveMethodBinding();
+			IMethodBinding binding = null;
+
+			if (node instanceof MethodInvocation mi) {
+				binding = mi.resolveMethodBinding();
+				replaceOffset = mi.getName().getStartPosition() + mi.getName().getLength() + 1;
+				replaceLength = mi.getStartPosition() + mi.getLength() - 1 - replaceOffset;
+			} else if (node instanceof SuperMethodInvocation smi) {
+				binding = smi.resolveMethodBinding();
+				replaceOffset = smi.getName().getStartPosition() + smi.getName().getLength() + 1;
+				replaceLength = smi.getStartPosition() + smi.getLength() - 1 - replaceOffset;
+			} else if (node instanceof ClassInstanceCreation cic) {
+				binding = cic.resolveConstructorBinding();
+				replaceOffset = cic.getStartPosition() + cic.getType().getStartPosition() + cic.getType().getLength()
+						+ 1;
+				replaceLength = cic.getStartPosition() + cic.getLength() - 1 - replaceOffset;
+			} else {
+				return null;
+			}
+
 			if (binding == null) {
 				return null;
 			}
 
 			List<String> args = new ArrayList<>();
 
-			// Try to get the parameter name
+			// First try to get the parameter name in the source code
 			IMethod method = (IMethod) binding.getJavaElement();
 			if (method != null && method.exists()) {
 				try {
-					String[] paramNames = method.getParameterNames();
-					args.addAll(Arrays.asList(paramNames));
+					args.addAll(Arrays.asList(method.getParameterNames()));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 
-			// fallback: use type name
+			// Fallback: Generate placeholder parameter names based on type
 			if (args.isEmpty()) {
-				for (ITypeBinding param : binding.getParameterTypes()) {
-					args.add(param.getName());
+				int index = 1;
+				for (ITypeBinding paramType : binding.getParameterTypes()) {
+					String typeName = paramType.getName();
+					if (typeName == null || typeName.isEmpty()) {
+						typeName = "arg" + index++;
+					} else {
+						typeName = typeName.substring(0, 1).toLowerCase() + typeName.substring(1);
+					}
+					args.add(typeName);
 				}
 			}
 
-			String replacement = String.join(", ", args);
+			return String.join(", ", args);
 
-			// Calculate the replacement range (in brackets)
-			replaceOffset = invocation.getStartPosition() + invocation.getName().getLength() + 1;
-			int end = invocation.getStartPosition() + invocation.getLength() - 1;
-			replaceLength = end - replaceOffset;
-
-			return replacement;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -116,12 +135,12 @@ public class ArgumentFiller {
 	}
 
 	/**
-	 * Find the MethodInvocation where the cursor is located
+	 * ASTVisitor to find the target invocation node at the cursor
 	 */
 	static class MethodInvocationFinder extends ASTVisitor {
 
 		private final int offset;
-		private MethodInvocation target;
+		private ASTNode target;
 
 		MethodInvocationFinder(int offset) {
 			this.offset = offset;
@@ -129,17 +148,32 @@ public class ArgumentFiller {
 
 		@Override
 		public boolean visit(MethodInvocation node) {
-			// Include the method name and bracket scope
-			int argStart = node.getName().getStartPosition();
-			int argEnd = node.getStartPosition() + node.getLength();
-			if (offset >= argStart && offset <= argEnd) {
+			if (inRange(node))
 				target = node;
-			}
-
 			return super.visit(node);
 		}
 
-		MethodInvocation getMethodInvocation() {
+		@Override
+		public boolean visit(SuperMethodInvocation node) {
+			if (inRange(node))
+				target = node;
+			return super.visit(node);
+		}
+
+		@Override
+		public boolean visit(ClassInstanceCreation node) {
+			if (inRange(node))
+				target = node;
+			return super.visit(node);
+		}
+
+		private boolean inRange(ASTNode node) {
+			int start = node.getStartPosition();
+			int end = start + node.getLength();
+			return offset >= start && offset <= end;
+		}
+
+		ASTNode getTargetNode() {
 			return target;
 		}
 	}

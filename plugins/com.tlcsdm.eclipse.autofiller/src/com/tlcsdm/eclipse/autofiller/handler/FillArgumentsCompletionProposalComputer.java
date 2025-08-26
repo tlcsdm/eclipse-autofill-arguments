@@ -30,30 +30,30 @@ public class FillArgumentsCompletionProposalComputer implements IJavaCompletionP
 		int offset = context.getInvocationOffset();
 		IDocument doc = context.getDocument();
 
-		// Get the current editor
-		IEditorPart editor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+		try {
+			IEditorPart editor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+			if (!(editor instanceof ITextEditor)) {
+				return Collections.emptyList();
+			}
 
-		if (!(editor instanceof ITextEditor)) {
-			return Collections.emptyList();
-		}
+			ITextEditor textEditor = (ITextEditor) editor;
+			IEditorInput input = textEditor.getEditorInput();
+			ICompilationUnit icu = JavaUI.getWorkingCopyManager().getWorkingCopy(input);
+			if (icu == null) {
+				return Collections.emptyList();
+			}
 
-		ITextEditor textEditor = (ITextEditor) editor;
-		IEditorInput input = textEditor.getEditorInput();
-		ICompilationUnit icu = JavaUI.getWorkingCopyManager().getWorkingCopy(input);
+			ArgumentFiller filler = new ArgumentFiller(doc, offset, icu);
+			String replacement = filler.previewArguments();
+			if (replacement != null) {
+				CompletionProposal proposal = new CompletionProposal(replacement, filler.getReplaceOffset(),
+						filler.getReplaceLength(), filler.getReplaceOffset() + replacement.length(), null,
+						"Fill method arguments: " + replacement, null, null);
+				proposals.add(proposal);
+			}
 
-		if (icu == null) {
-			return Collections.emptyList();
-		}
-
-		// Call ArgumentFiller
-		ArgumentFiller filler = new ArgumentFiller(doc, offset, icu);
-		String replacement = filler.previewArguments();
-
-		if (replacement != null) {
-			CompletionProposal proposal = new CompletionProposal(replacement, filler.getReplaceOffset(),
-					filler.getReplaceLength(), filler.getReplaceOffset() + replacement.length(), null,
-					"Fill method arguments: " + replacement, null, null);
-			proposals.add(0, proposal);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		return proposals;

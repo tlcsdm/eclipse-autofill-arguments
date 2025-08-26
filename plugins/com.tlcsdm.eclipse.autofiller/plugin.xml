@@ -28,7 +28,7 @@
          point="org.eclipse.jdt.ui.javaCompletionProposalComputer">
       <javaCompletionProposalComputer
             activate="true"
-            categoryId="org.eclipse.jdt.ui.javaProposalCategory"
+            categoryId="org.eclipse.jdt.ui.defaultProposalCategory"
             class="com.tlcsdm.eclipse.autofiller.handler.FillArgumentsCompletionProposalComputer"
             needsSortingAfterFiltering="false"
             requiresUIThread="true">
