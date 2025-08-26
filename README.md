@@ -1,16 +1,15 @@
 # Auto Filling Java Call Arguments
 
-This project is a Eclipse plugin that automates the writing of these builders. With just two clicks you can generate all the builder code you need.
+This plugin guesses the call parameters by the callee parameter names.
 
-## About
-The Builder Pattern was first introduced by Joshua Bloch at JavaOne 2007. It's a pattern for class creation and helps getting rid of ugly constructors, constructor telescoping and increases the general readability of your code.
-
-## Use
-In the eclipse java editor window, right click and select Source -> Generate Builder Pattern Code or Ctrl + Alt + O.
+## Use  
+1. Via Eclipse Content Assist  
+Press Ctrl + Space (Content Assist) inside the parentheses.
 
 ![screenshot](https://raw.github.com/tlcsdm/eclipse-autofill-arguments/master/plugins/com.tlcsdm.eclipse.autofiller/images/usage-context-menu-option.jpg)
 
-Then select which fields you want to expose in the builder.
+2. Using the Shortcut Key  
+Place the cursor inside a method call or on the method name and then press Ctrl + Alt + O
 
 ![screenshot](https://raw.github.com/tlcsdm/eclipse-autofill-arguments/master/plugins/com.tlcsdm.eclipse.autofiller/images/usage-selection-window.jpg)
 

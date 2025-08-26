@@ -7,7 +7,7 @@
       plugin="com.tlcsdm.eclipse.autofiller">
 
    <description>
-      Auto Filling Java Call Arguments
+      This plugin guesses the call parameters by the callee parameter names.
    </description>
 
    <copyright>
