@@ -64,19 +64,75 @@ public class ArgumentFiller {
 
 			IMethodBinding binding = null;
 
-			if (node instanceof MethodInvocation mi) {
+			if (node instanceof MethodInvocation) {
+				MethodInvocation mi = (MethodInvocation) node;
 				binding = mi.resolveMethodBinding();
-				replaceOffset = mi.getName().getStartPosition() + mi.getName().getLength() + 1;
-				replaceLength = mi.getStartPosition() + mi.getLength() - 1 - replaceOffset;
-			} else if (node instanceof SuperMethodInvocation smi) {
+
+				int nameEnd = mi.getName().getStartPosition() + mi.getName().getLength();
+				replaceOffset = nameEnd + 1;
+
+				List<?> argsList = mi.arguments();
+				if (!argsList.isEmpty()) {
+					int lastArgEnd = 0;
+					for (Object o : argsList) {
+						if (o instanceof ASTNode expr) {
+							lastArgEnd = Math.max(lastArgEnd, expr.getStartPosition() + expr.getLength());
+						}
+					}
+					if (lastArgEnd == 0) {
+						lastArgEnd = nameEnd;
+					}
+					replaceLength = lastArgEnd - replaceOffset;
+				} else {
+					replaceLength = 0;
+				}
+
+			} else if (node instanceof SuperMethodInvocation) {
+				SuperMethodInvocation smi = (SuperMethodInvocation) node;
 				binding = smi.resolveMethodBinding();
-				replaceOffset = smi.getName().getStartPosition() + smi.getName().getLength() + 1;
-				replaceLength = smi.getStartPosition() + smi.getLength() - 1 - replaceOffset;
-			} else if (node instanceof ClassInstanceCreation cic) {
+
+				int nameEnd = smi.getName().getStartPosition() + smi.getName().getLength();
+				replaceOffset = nameEnd + 1;
+
+				List<?> argsList = smi.arguments();
+				if (!argsList.isEmpty()) {
+					int lastArgEnd = 0;
+					for (Object o : argsList) {
+						if (o instanceof ASTNode expr) {
+							lastArgEnd = Math.max(lastArgEnd, expr.getStartPosition() + expr.getLength());
+						}
+					}
+					if (lastArgEnd == 0) {
+						lastArgEnd = nameEnd;
+					}
+					replaceLength = lastArgEnd - replaceOffset;
+				} else {
+					replaceLength = 0;
+				}
+
+			} else if (node instanceof ClassInstanceCreation) {
+				ClassInstanceCreation cic = (ClassInstanceCreation) node;
 				binding = cic.resolveConstructorBinding();
-				replaceOffset = cic.getStartPosition() + cic.getType().getStartPosition() + cic.getType().getLength()
-						+ 1;
-				replaceLength = cic.getStartPosition() + cic.getLength() - 1 - replaceOffset;
+
+				int typeEnd = cic.getType().getStartPosition() + cic.getType().getLength();
+				replaceOffset = typeEnd + 1;
+
+				List<?> argsList = cic.arguments();
+				if (!argsList.isEmpty()) {
+					int lastArgEnd = 0;
+					for (Object o : argsList) {
+						if (o instanceof ASTNode expr) {
+							lastArgEnd = Math.max(lastArgEnd, expr.getStartPosition() + expr.getLength());
+						}
+					}
+					if (lastArgEnd == 0) {
+						lastArgEnd = typeEnd;
+					}
+					replaceLength = lastArgEnd - replaceOffset;
+				} else {
+					replaceLength = 0;
+				}
+
 			} else {
 				return null;
 			}
@@ -103,7 +159,8 @@ public class ArgumentFiller {
 				for (ITypeBinding paramType : binding.getParameterTypes()) {
 					String typeName = paramType.getName();
 					if (typeName == null || typeName.isEmpty()) {
-						typeName = "arg" + index++;
+						typeName = "arg" + index;
+						index++;
 					} else {
 						typeName = typeName.substring(0, 1).toLowerCase() + typeName.substring(1);
 					}
@@ -125,10 +182,9 @@ public class ArgumentFiller {
 	public void fillArguments() {
 		try {
 			String replacement = previewArguments();
-			if (replacement == null) {
-				return;
+			if (replacement != null) {
+				doc.replace(replaceOffset, replaceLength, replacement);
 			}
-			doc.replace(replaceOffset, replaceLength, replacement);
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
@@ -148,29 +204,46 @@ public class ArgumentFiller {
 
 		@Override
 		public boolean visit(MethodInvocation node) {
-			if (inRange(node))
+			if (inRange(node)) {
 				target = node;
+			}
 			return super.visit(node);
 		}
 
 		@Override
 		public boolean visit(SuperMethodInvocation node) {
-			if (inRange(node))
+			if (inRange(node)) {
 				target = node;
+			}
 			return super.visit(node);
 		}
 
 		@Override
 		public boolean visit(ClassInstanceCreation node) {
-			if (inRange(node))
+			if (inRange(node)) {
 				target = node;
+			}
 			return super.visit(node);
 		}
 
 		private boolean inRange(ASTNode node) {
 			int start = node.getStartPosition();
 			int end = start + node.getLength();
-			return offset >= start && offset <= end;
+
+			// If the MethodInvocation takes an expression (new Caller(...).print()), the
+			// cursor may be inside the brackets.
+			if (node instanceof MethodInvocation mi) {
+				if (mi.getExpression() != null) {
+					start = mi.getName().getStartPosition();
+					end = mi.getStartPosition() + mi.getLength();
+				}
+			}
+
+			if (offset >= start && offset <= end) {
+				return true;
+			} else {
+				return false;
+			}
 		}
 
 		ASTNode getTargetNode() {

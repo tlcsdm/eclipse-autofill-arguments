@@ -14,6 +14,7 @@ public class Demo {
 		// foo();
 		// str();
 		// Caller.caller();
+		// new Caller(5).print()
 		// new Inner(120).print()
 	}
 
