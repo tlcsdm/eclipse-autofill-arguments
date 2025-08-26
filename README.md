@@ -6,12 +6,10 @@ This plugin guesses the call parameters by the callee parameter names.
 1. Via Eclipse Content Assist  
 Press Ctrl + Space (Content Assist) inside the parentheses.
 
-![screenshot](https://raw.github.com/tlcsdm/eclipse-autofill-arguments/master/plugins/com.tlcsdm.eclipse.autofiller/images/usage-context-menu-option.jpg)
-
 2. Using the Shortcut Key  
 Place the cursor inside a method call or on the method name and then press Ctrl + Alt + O
 
-![screenshot](https://raw.github.com/tlcsdm/eclipse-autofill-arguments/master/plugins/com.tlcsdm.eclipse.autofiller/images/usage-selection-window.jpg)
+<img src="demo.gif" alt="demo" title="demo"/>
 
 ## Build
 

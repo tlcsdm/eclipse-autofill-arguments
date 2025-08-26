@@ -11,11 +11,11 @@ public class Demo {
 	}
 
 	void test() {
-		// foo();
-		// str();
-		// Caller.caller();
-		// new Caller(5).print()
-		// new Inner(120).print()
+//		foo();
+//		str();
+//		Caller.caller();
+//		new Caller(5).print();
+//		new Inner().print();
 	}
 
 	static class Inner {
