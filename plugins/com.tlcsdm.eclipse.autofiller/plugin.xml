@@ -27,8 +27,8 @@
          name="Auto Filling Java Call Arguments"
          point="org.eclipse.jdt.ui.javaCompletionProposalComputer">
       <javaCompletionProposalComputer
-            activate="false"
-            categoryId="org.eclipse.jdt.ui.defaultProposalCategory"
+            activate="true"
+            categoryId="org.eclipse.jdt.ui.javaProposalCategory"
             class="com.tlcsdm.eclipse.autofiller.handler.FillArgumentsCompletionProposalComputer"
             needsSortingAfterFiltering="false"
             requiresUIThread="true">
