@@ -2,6 +2,8 @@
 
 This plugin guesses the call parameters by the callee parameter names.
 
+Now Support Eclipse 2024-06 and later, Mac OS X, Linux (with nautilus) and Windows.
+
 ## Use  
 1. Via Eclipse Content Assist  
 Press Ctrl + Space (Content Assist) inside the parentheses.
