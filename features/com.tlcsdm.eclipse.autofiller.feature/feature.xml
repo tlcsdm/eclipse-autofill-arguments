@@ -295,8 +295,8 @@ version(s), and exceptions or additional permissions here}.&quot;
    </license>
 
    <url>
-      <update label="%updateSiteName" url="https://raw.githubusercontent.com/tlcsdm/eclipse-autofill-arguments/master/update_site/"/>
-      <discovery label="Auto Filling Java Call Arguments Update Site" url="https://raw.githubusercontent.com/tlcsdm/eclipse-autofill-arguments/master/update_site/"/>
+      <update label="%updateSiteName" url="https://raw.githubusercontent.com/tlcsdm/eclipse-autofill-arguments/update_site/"/>
+      <discovery label="Auto Filling Java Call Arguments Update Site" url="https://raw.githubusercontent.com/tlcsdm/eclipse-autofill-arguments/update_site/"/>
    </url>
 
    <requires>
