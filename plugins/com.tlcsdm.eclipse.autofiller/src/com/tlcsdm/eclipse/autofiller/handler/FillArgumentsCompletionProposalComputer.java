@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jdt.ui.text.java.ContentAssistInvocationContext;
@@ -22,6 +24,8 @@ import com.tlcsdm.eclipse.autofiller.generator.ArgumentFiller;
 
 public class FillArgumentsCompletionProposalComputer implements IJavaCompletionProposalComputer {
 
+	private static final ILog LOG = Platform.getLog(FillArgumentsCompletionProposalComputer.class);
+
 	@Override
 	public List<ICompletionProposal> computeCompletionProposals(ContentAssistInvocationContext context,
 			IProgressMonitor monitor) {
@@ -32,11 +36,10 @@ public class FillArgumentsCompletionProposalComputer implements IJavaCompletionP
 
 		try {
 			IEditorPart editor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-			if (!(editor instanceof ITextEditor)) {
+			if (!(editor instanceof ITextEditor textEditor)) {
 				return Collections.emptyList();
 			}
 
-			ITextEditor textEditor = (ITextEditor) editor;
 			IEditorInput input = textEditor.getEditorInput();
 			ICompilationUnit icu = JavaUI.getWorkingCopyManager().getWorkingCopy(input);
 			if (icu == null) {
@@ -53,7 +56,7 @@ public class FillArgumentsCompletionProposalComputer implements IJavaCompletionP
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error("Failed to compute completion proposals", e);
 		}
 
 		return proposals;

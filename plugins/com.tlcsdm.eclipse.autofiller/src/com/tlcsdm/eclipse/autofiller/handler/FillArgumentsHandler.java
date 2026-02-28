@@ -19,11 +19,10 @@ public class FillArgumentsHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IEditorPart editor = HandlerUtil.getActiveEditor(event);
-		if (!(editor instanceof ITextEditor)) {
+		if (!(editor instanceof ITextEditor textEditor)) {
 			return null;
 		}
 
-		ITextEditor textEditor = (ITextEditor) editor;
 		IEditorInput input = textEditor.getEditorInput();
 		ICompilationUnit icu = JavaUI.getWorkingCopyManager().getWorkingCopy(input);
 		if (icu == null) {

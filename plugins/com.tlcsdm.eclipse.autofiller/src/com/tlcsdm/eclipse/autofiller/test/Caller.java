@@ -14,7 +14,7 @@ public class Caller {
 		return length;
 	}
 
-	public static int caller(int age, String name, Map map) {
+	public static int caller(int age, String name, Map<?, ?> map) {
 		return 0;
 	}
 
