@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.core.runtime.ILog;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.dom.AST;
@@ -20,6 +22,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 
 public class ArgumentFiller {
+
+	private static final ILog LOG = Platform.getLog(ArgumentFiller.class);
 
 	private final IDocument document;
 	private final int offset;
@@ -94,18 +98,17 @@ public class ArgumentFiller {
 				try {
 					args.addAll(Arrays.asList(method.getParameterNames()));
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOG.error("Failed to get parameter names", e);
 				}
 			}
 
 			// Fallback: generate placeholder names based on type
 			if (args.isEmpty()) {
-				int index = 1;
-				for (ITypeBinding paramType : binding.getParameterTypes()) {
+				for (int i = 0; i < binding.getParameterTypes().length; i++) {
+					ITypeBinding paramType = binding.getParameterTypes()[i];
 					String typeName = paramType.getName();
 					if (typeName == null || typeName.isEmpty()) {
-						typeName = "arg" + index;
-						index++;
+						typeName = "arg" + (i + 1);
 					} else {
 						typeName = typeName.substring(0, 1).toLowerCase() + typeName.substring(1);
 					}
@@ -116,7 +119,7 @@ public class ArgumentFiller {
 			return String.join(", ", args);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error("Failed to preview arguments", e);
 			return null;
 		}
 	}
@@ -155,7 +158,7 @@ public class ArgumentFiller {
 				document.replace(replaceOffset, replaceLength, replacement);
 			}
 		} catch (BadLocationException e) {
-			e.printStackTrace();
+			LOG.error("Failed to fill arguments", e);
 		}
 	}
 

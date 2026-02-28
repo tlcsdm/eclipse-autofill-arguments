@@ -11,8 +11,8 @@
    </extension>
    <extension point="org.eclipse.ui.commands">
       <command id="com.tlcsdm.eclipse.autofiller.command"
-               name="Generate Builder Pattern..."
-               description="Generate Builder Pattern code">
+               name="Auto Fill Arguments"
+               description="Auto fill method call arguments">
       </command>
    </extension>
    
